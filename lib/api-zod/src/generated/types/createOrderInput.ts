@@ -5,7 +5,8 @@
  * Logo Store API
  * OpenAPI spec version: 0.1.0
  */
+import type { OrderItemInput } from "./orderItemInput";
 
-export interface HealthStatus {
-  status: string;
+export interface CreateOrderInput {
+  items: OrderItemInput[];
 }

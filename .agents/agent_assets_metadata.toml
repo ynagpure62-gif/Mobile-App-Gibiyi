@@ -1,0 +1,56 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "RkMfwSfFhSIi4fOsvPnmd"
+uri = "file://artifacts/logo-store/assets/images/icon.png"
+type = "image"
+title = "logo store app icon"
+
+[[generated]]
+id = "yZr76xaM25ztFUfYR7_Bo"
+uri = "file://artifacts/logo-store/assets/images/hero-banner.png"
+type = "image"
+title = "hero banner dark"
+
+[[generated]]
+id = "mkWrbp3I5OEsLYf-HGxda"
+uri = "file://artifacts/logo-store/assets/images/featured-logos.png"
+type = "image"
+title = "featured logos collection"
+
+[[generated]]
+id = "Xw8IhE_aZ5nwNiEMLCT8D"
+uri = "file://artifacts/logo-store/assets/images/logo-1.png"
+type = "image"
+title = "sample logo geometric"
+
+[[generated]]
+id = "owrRgZruAwbdnPWRguYJe"
+uri = "file://artifacts/logo-store/assets/images/logo-2.png"
+type = "image"
+title = "sample logo letter A"
+
+[[generated]]
+id = "x-NO2xb_LWU-jMTuqN3Vv"
+uri = "file://artifacts/logo-store/assets/images/logo-3.png"
+type = "image"
+title = "sample logo hexagon"
+
+[[generated]]
+id = "Fnsj2c0FPVUqm675aPnqq"
+uri = "file://artifacts/logo-store/assets/images/logo-4.png"
+type = "image"
+title = "sample logo infinity"
+
+[[generated]]
+id = "pCLFXhNbSFJVdUkkuAcjh"
+uri = "file://artifacts/logo-store/assets/images/logo-5.png"
+type = "image"
+title = "sample logo mountain peak"
+
+[[generated]]
+id = "E4dbS0nYHXmDODIS0LUcz"
+uri = "file://artifacts/logo-store/assets/images/logo-6.png"
+type = "image"
+title = "sample logo linked rings"

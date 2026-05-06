@@ -1,0 +1,86 @@
+Build a production-ready eCommerce mobile application using Flutter.
+
+App concept:
+
+* The app sells digital products, specifically logo designs.
+* Users can browse, preview, purchase, and download logos.
+
+Core requirements:
+
+1. UI/UX:
+
+* Use a dark, modern, and visually stunning theme (black/charcoal base with vibrant accent colors like neon blue or purple).
+* Clean, minimal, premium design similar to high-end marketplaces.
+* Smooth animations and transitions.
+* Responsive layout for different screen sizes.
+
+2. Features:
+
+* User authentication (Email/Password + Google Sign-In)
+* Home screen with featured logos and categories
+* Product listing page with filters (style, price, popularity)
+* Product detail page with:
+
+  * High-quality logo preview
+  * Description
+  * Price
+  * Add to cart / Buy now
+* Shopping cart functionality
+* Secure checkout (integrate Stripe or Razorpay)
+* Order history
+* User profile management
+* Wishlist / favorites
+* Search functionality
+
+3. Backend:
+
+* Use Firebase (Firestore + Authentication + Storage)
+* Store logo images in cloud storage
+* Maintain scalable architecture
+
+4. Architecture:
+
+* Follow clean architecture principles
+* Use state management (Riverpod or Bloc)
+* Separate layers: presentation, domain, data
+* Write modular, maintainable, and scalable code
+
+5. Performance & Quality:
+
+* Optimize for performance and fast loading
+* Error handling and loading states
+* Offline support where possible
+* Write clean, well-documented code
+* Include basic unit and widget tests
+
+6. Admin capabilities (optional but preferred):
+
+* Admin panel (web or hidden route) to:
+
+  * Upload logos
+  * Manage products
+  * View orders
+
+7. Security:
+
+* Secure API calls
+* Firebase security rules
+* Protect digital downloads after purchase
+
+8. Deliverables:
+
+* Complete Flutter project structure
+* All screens implemented
+* Sample data included
+* Instructions to run the project
+* Production-ready code with best practices
+
+Design inspiration:
+
+* Premium, sleek apps like Dribbble, Behance, or modern SaaS dashboards.
+
+Output format:
+
+* Provide full Flutter code with file structure
+* Explain key parts of the implementation
+* Ensure the app can be directly run after setup
