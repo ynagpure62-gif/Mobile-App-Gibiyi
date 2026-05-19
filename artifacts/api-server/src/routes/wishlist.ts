@@ -1,22 +1,12 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { wishlistItemsTable, productsTable } from "@workspace/db/schema";
 import { and, eq } from "drizzle-orm";
+import { requireAuth, type AuthRequest } from "../middlewares/authMiddleware";
 
 const router = Router();
 
-function requireAuth(req: any, res: any, next: any) {
-  const auth = getAuth(req);
-  const userId = auth?.userId;
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  req.userId = userId;
-  next();
-}
-
-router.get("/", requireAuth, async (req: any, res) => {
+router.get("/", requireAuth, async (req: AuthRequest, res) => {
   try {
     const items = await db
       .select({ product: productsTable })
@@ -25,16 +15,15 @@ router.get("/", requireAuth, async (req: any, res) => {
         productsTable,
         eq(wishlistItemsTable.productId, productsTable.id),
       )
-      .where(eq(wishlistItemsTable.userId, req.userId));
+      .where(eq(wishlistItemsTable.userId, req.userId!));
 
-    res.json(items.map((i) => i.product));
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch wishlist" });
+    return res.json(items.map((i) => i.product));
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to fetch wishlist" });
   }
 });
 
-router.post("/", requireAuth, async (req: any, res) => {
+router.post("/", requireAuth, async (req: AuthRequest, res) => {
   try {
     const { productId } = req.body as { productId: number };
 
@@ -43,7 +32,7 @@ router.post("/", requireAuth, async (req: any, res) => {
       .from(wishlistItemsTable)
       .where(
         and(
-          eq(wishlistItemsTable.userId, req.userId),
+          eq(wishlistItemsTable.userId, req.userId!),
           eq(wishlistItemsTable.productId, productId),
         ),
       )
@@ -55,33 +44,32 @@ router.post("/", requireAuth, async (req: any, res) => {
 
     const [item] = await db
       .insert(wishlistItemsTable)
-      .values({ userId: req.userId, productId })
+      .values({ userId: req.userId!, productId })
       .returning();
 
-    res.status(201).json(item);
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "Failed to add to wishlist" });
+    return res.status(201).json(item);
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to add to wishlist" });
   }
 });
 
-router.delete("/:productId", requireAuth, async (req: any, res) => {
+router.delete("/:productId", requireAuth, async (req: AuthRequest, res) => {
   try {
-    const productId = parseInt(req.params["productId"] ?? "0");
+    const productIdParam = req.params["productId"];
+    const productId = parseInt(typeof productIdParam === 'string' ? productIdParam : "0");
 
     await db
       .delete(wishlistItemsTable)
       .where(
         and(
-          eq(wishlistItemsTable.userId, req.userId),
+          eq(wishlistItemsTable.userId, req.userId!),
           eq(wishlistItemsTable.productId, productId),
         ),
       );
 
-    res.json({ success: true });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "Failed to remove from wishlist" });
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to remove from wishlist" });
   }
 });
 

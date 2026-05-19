@@ -1,25 +1,18 @@
-import { useAuth } from "@clerk/expo";
-import { setAuthTokenGetter } from "@workspace/api-client-react";
 import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import React, { useEffect } from "react";
+import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import colors from "@/constants/colors";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/lib/supabase";
 
 export default function TabLayout() {
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+
+
   const { itemCount } = useCart();
   const c = colors.dark;
-
-  useEffect(() => {
-    setAuthTokenGetter(() => getToken());
-  }, [getToken]);
-
-  if (!isLoaded) return null;
-  if (!isSignedIn) return <Redirect href="/(auth)/sign-in" />;
 
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";

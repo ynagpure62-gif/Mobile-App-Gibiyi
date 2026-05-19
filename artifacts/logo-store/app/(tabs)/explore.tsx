@@ -104,20 +104,20 @@ export default function ExploreScreen() {
         </View>
 
         <FlatList
-          data={[{ id: 0, name: "All", slug: "" }, ...(categories ?? [])]}
+          data={[{ id: 0, name: "All", slug: "all" }, ...(categories ?? [])]}
           horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.slug}
           contentContainerStyle={{ gap: 8, paddingVertical: 10 }}
           renderItem={({ item }) => {
-            const active = selectedCategory === item.slug;
+            const active = (selectedCategory === item.slug) || (item.slug === 'all' && !selectedCategory);
             return (
               <Pressable
                 style={[
                   styles.chip,
                   { backgroundColor: active ? c.primary : c.card, borderColor: active ? c.primary : c.border },
                 ]}
-                onPress={() => setSelectedCategory(item.slug)}
+                onPress={() => setSelectedCategory(item.slug === 'all' ? '' : item.slug)}
               >
                 <Text style={[styles.chipText, { color: active ? "#FFF" : c.mutedForeground }]}>
                   {item.name}

@@ -1,8 +1,7 @@
-import { useAuth, useUser } from "@clerk/expo";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Platform,
@@ -15,19 +14,29 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGetOrders } from "@workspace/api-client-react";
 import colors from "@/constants/colors";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 
 const MENU_ITEMS = [
   { icon: "package", label: "Order History", route: "/orders" },
   { icon: "heart", label: "Wishlist", route: "/wishlist" },
+  { icon: "edit", label: "Custom Logo Design", route: "/custom-logo" },
 ];
 
 export default function ProfileScreen() {
   const c = colors.dark;
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { signOut } = useAuth();
-  const { user } = useUser();
+  const [user, setUser] = useState<User | null>(null);
   const { data: orders } = useGetOrders();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, []);
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top;
 
@@ -36,23 +45,14 @@ export default function ProfileScreen() {
     0,
   ) ?? 0;
 
-  const handleSignOut = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign Out",
-        style: "destructive",
-        onPress: async () => {
-          await signOut();
-          router.replace("/(auth)/sign-in" as any);
-        },
-      },
-    ]);
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.replace("/(auth)/sign-in" as any);
   };
 
-  const initials = user?.firstName
-    ? `${user.firstName[0]}${user.lastName?.[0] ?? ""}`.toUpperCase()
-    : user?.emailAddresses[0]?.emailAddress[0]?.toUpperCase() ?? "U";
+  const email = user?.email ?? "";
+  const initials = email ? email[0].toUpperCase() : "U";
+  const displayName = email ? email.split("@")[0] : "User";
 
   return (
     <ScrollView
@@ -68,10 +68,10 @@ export default function ProfileScreen() {
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
         <Text style={[styles.name, { color: c.foreground }]}>
-          {user?.firstName ? `${user.firstName} ${user.lastName ?? ""}`.trim() : "User"}
+          {displayName}
         </Text>
         <Text style={[styles.email, { color: c.mutedForeground }]}>
-          {user?.emailAddresses[0]?.emailAddress ?? ""}
+          {email}
         </Text>
       </View>
 
@@ -84,7 +84,7 @@ export default function ProfileScreen() {
         </View>
         <View style={[styles.statCard, { backgroundColor: c.card, borderColor: c.border }]}>
           <Text style={[styles.statValue, { color: c.foreground }]}>
-            ${totalSpent.toFixed(0)}
+            ₹{totalSpent.toFixed(0)}
           </Text>
           <Text style={[styles.statLabel, { color: c.mutedForeground }]}>Total Spent</Text>
         </View>

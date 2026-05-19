@@ -18,7 +18,9 @@ import type {
 
 import type {
   Category,
+  CreateCustomLogo201,
   CreateOrderInput,
+  CustomLogoRequestInput,
   GetProductsParams,
   HealthStatus,
   Order,
@@ -921,4 +923,90 @@ export const useRemoveFromWishlist = <
   TContext
 > => {
   return useMutation(getRemoveFromWishlistMutationOptions(options));
+};
+
+/**
+ * @summary Submit a custom logo design request
+ */
+export const getCreateCustomLogoUrl = () => {
+  return `/api/custom-logo`;
+};
+
+export const createCustomLogo = async (
+  customLogoRequestInput: CustomLogoRequestInput,
+  options?: RequestInit,
+): Promise<CreateCustomLogo201> => {
+  return customFetch<CreateCustomLogo201>(getCreateCustomLogoUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(customLogoRequestInput),
+  });
+};
+
+export const getCreateCustomLogoMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCustomLogo>>,
+    TError,
+    { data: BodyType<CustomLogoRequestInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createCustomLogo>>,
+  TError,
+  { data: BodyType<CustomLogoRequestInput> },
+  TContext
+> => {
+  const mutationKey = ["createCustomLogo"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createCustomLogo>>,
+    { data: BodyType<CustomLogoRequestInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createCustomLogo(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateCustomLogoMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createCustomLogo>>
+>;
+export type CreateCustomLogoMutationBody = BodyType<CustomLogoRequestInput>;
+export type CreateCustomLogoMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit a custom logo design request
+ */
+export const useCreateCustomLogo = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCustomLogo>>,
+    TError,
+    { data: BodyType<CustomLogoRequestInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createCustomLogo>>,
+  TError,
+  { data: BodyType<CustomLogoRequestInput> },
+  TContext
+> => {
+  return useMutation(getCreateCustomLogoMutationOptions(options));
 };

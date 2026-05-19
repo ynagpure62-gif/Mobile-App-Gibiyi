@@ -1,26 +1,154 @@
 import { Feather } from "@expo/vector-icons";
+// Import icons to show back arrows and download symbols
 import { Image } from "expo-image";
+// Import a fast image component to show product pictures
 import { useRouter } from "expo-router";
-import React from "react";
+// Import the router to navigate between different screens
+import React, { useState } from "react";
+// Import React and useState to handle data changes on the screen
 import {
   ActivityIndicator,
+  // A spinning wheel to show that something is loading
   FlatList,
+  // A list component to show many orders efficiently
   Platform,
+  // A helper to check if the app is running on Web, iOS, or Android
   Pressable,
+  // A button-like component that can be pressed
   StyleSheet,
+  // A way to define how the components should look
   Text,
+  // A component to display text
   View,
+  // A container component to group other parts together
 } from "react-native";
+// End of React Native imports
+
 import Animated, { FadeInDown } from "react-native-reanimated";
+// Import animation tools to make the list items slide in smoothly
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useGetOrders } from "@workspace/api-client-react";
+// Import a tool to handle screen notches and safe areas
+import { useGetOrders, getBaseUrl } from "@workspace/api-client-react";
+// Import functions to fetch orders and get the server's web address
+import { Paths, File } from "expo-file-system";
+// Import the new File System API to save files on the device
+import * as Sharing from "expo-sharing";
+// Import sharing tools to let users save or send downloaded files
 import colors from "@/constants/colors";
+// Import the color scheme used in the app
 
 export default function OrdersScreen() {
+  // Define the main screen for showing the order history
   const router = useRouter();
+  // Get the router instance to handle back navigation
   const c = colors.dark;
+  // Use the dark mode color palette
   const insets = useSafeAreaInsets();
+  // Get the safe area spacing for the current device
   const { data: orders, isLoading } = useGetOrders();
+  // Fetch the list of orders and check if they are still loading
+
+  const [downloadingOrderId, setDownloadingOrderId] = useState<number | null>(null);
+  // Keep track of which order is currently being downloaded
+
+  const handleDownload = async (orderId: number, items: any[]) => {
+    // A function to download the logo files for a specific order
+    try {
+      // Start a try block to catch any errors during download
+      setDownloadingOrderId(orderId);
+      // Mark this order as "currently downloading" to show the spinner
+
+      for (const oi of items) {
+        // Loop through each item in the order to download its image
+        const imageUrl = oi.product.imageUrl;
+        // Get the link to the product's image
+        const title = oi.product.title;
+        // Get the name of the product
+        const fullUrl = imageUrl.startsWith("http") ? imageUrl : `${getBaseUrl() || ""}${imageUrl}`;
+        // Create a complete web link for the image
+
+        // Force download file extension to always be .jpg
+        const extension = "jpg";
+        // Set the file type to JPG
+        const sanitizedTitle = title.replace(/[^a-zA-Z0-9]/g, "_");
+        // Remove special characters from the name to make it a safe filename
+        const filename = `${sanitizedTitle}.${extension}`;
+        // Combine the name and extension to create the final filename
+
+        if (Platform.OS === "web") {
+          // If the app is running in a web browser
+          const res = await fetch(fullUrl);
+          // Fetch the image data from the web address
+          const blob = await res.blob();
+          // Convert the fetched data into a file-like "blob" object
+          const blobUrl = window.URL.createObjectURL(blob);
+          // Create a temporary link for the browser to download the blob
+          const link = document.createElement("a");
+          // Create a hidden "anchor" tag in the browser
+          link.href = blobUrl;
+          // Set the link's address to the blob URL
+          link.download = filename;
+          // Set the name of the file to be saved
+          document.body.appendChild(link);
+          // Add the link to the page temporarily
+          link.click();
+          // Simulate a click on the link to start the download
+          document.body.removeChild(link);
+          // Remove the link from the page after clicking
+          window.URL.revokeObjectURL(blobUrl);
+          // Delete the temporary blob URL to save memory
+        } else {
+          // If the app is running on a mobile device (iOS or Android)
+          const localFile = new File(Paths.document, filename);
+          // Create a reference to a new file in the app's documents folder
+          const downloadResult = await File.downloadFileAsync(fullUrl, localFile, { idempotent: true });
+          // Download the image from the web and save it to the local file
+
+          if (downloadResult.exists) {
+            // Check if the file was successfully saved
+            const isSharingAvailable = await Sharing.isAvailableAsync();
+            // Check if the device can show a "share" or "save to files" menu
+            if (isSharingAvailable) {
+              // If sharing is possible
+              await Sharing.shareAsync(downloadResult.uri, {
+                // Open the share menu with the downloaded file
+                mimeType: "image/jpeg",
+                // Tell the device that this is a JPEG image
+                dialogTitle: `Save ${title}`,
+                // Set the title for the sharing menu
+              });
+              // End of sharing process
+            } else {
+              // If the device cannot share files
+              alert("Saving to Files is not supported on this device.");
+              // Show an alert message to the user
+            }
+            // End of sharing check
+          } else {
+            // If the file was not found after downloading
+            alert(`Failed to download ${title}`);
+            // Show an error message for the specific product
+          }
+          // End of file existence check
+        }
+        // End of platform-specific download logic
+      }
+      // End of items loop
+    } catch (err) {
+      // If any error happens during the download or save process
+      console.error("Download error:", err);
+      // Log the error details for the developer
+      alert("Downloading fail ho gaya. Kripya dobara koshish karein.");
+      // Show a simple error message to the user in Hindi/English
+    } finally {
+      // After everything is finished, whether it succeeded or failed
+      setDownloadingOrderId(null);
+      // Stop showing the loading spinner for this order
+    }
+    // End of the download function
+  };
+  // End of handleDownload definition
+
 
   const topPadding = Platform.OS === "web" ? insets.top + 67 : insets.top;
 
@@ -75,13 +203,23 @@ export default function OrdersScreen() {
                     </Text>
                   </View>
                   <View>
-                    <View style={[styles.statusBadge, { backgroundColor: "#22C55E20", borderColor: "#22C55E44" }]}>
-                      <Text style={{ color: "#22C55E", fontSize: 12, fontFamily: "Inter_600SemiBold" }}>
+                    <View style={[
+                      styles.statusBadge, 
+                      item.status === 'completed' ? { backgroundColor: "#22C55E20", borderColor: "#22C55E44" } :
+                      item.status === 'rejected' ? { backgroundColor: "#EF444420", borderColor: "#EF444444" } :
+                      { backgroundColor: "#F59E0B20", borderColor: "#F59E0B44" }
+                    ]}>
+                      <Text style={{ 
+                        color: item.status === 'completed' ? "#22C55E" : item.status === 'rejected' ? "#EF4444" : "#F59E0B", 
+                        fontSize: 12, 
+                        fontFamily: "Inter_600SemiBold",
+                        textTransform: "capitalize"
+                      }}>
                         {item.status}
                       </Text>
                     </View>
                     <Text style={[styles.orderTotal, { color: c.foreground }]}>
-                      ${parseFloat(item.totalAmount as unknown as string).toFixed(2)}
+                      ₹{parseFloat(item.totalAmount as unknown as string).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -89,9 +227,9 @@ export default function OrdersScreen() {
                   {item.items.slice(0, 4).map((oi) => (
                     <Image
                       key={oi.id}
-                      source={{ uri: oi.product.imageUrl }}
+                      source={{ uri: oi.product.imageUrl.startsWith("http") ? oi.product.imageUrl : `${getBaseUrl() || ""}${oi.product.imageUrl}` }}
                       style={[styles.thumbImage, { borderColor: c.border }]}
-                      contentFit="cover"
+                      contentFit="contain"
                     />
                   ))}
                   {item.items.length > 4 && (
@@ -104,9 +242,17 @@ export default function OrdersScreen() {
                 </View>
                 <Pressable
                   style={[styles.downloadBtn, { backgroundColor: c.muted, borderColor: c.border }]}
+                  onPress={() => handleDownload(item.id, item.items)}
+                  disabled={downloadingOrderId !== null}
                 >
-                  <Feather name="download" size={14} color={c.primary} />
-                  <Text style={[styles.downloadText, { color: c.primary }]}>Download Files</Text>
+                  {downloadingOrderId === item.id ? (
+                    <ActivityIndicator size="small" color={c.primary} />
+                  ) : (
+                    <>
+                      <Feather name="download" size={14} color={c.primary} />
+                      <Text style={[styles.downloadText, { color: c.primary }]}>Download Files</Text>
+                    </>
+                  )}
                 </Pressable>
               </View>
             </Animated.View>

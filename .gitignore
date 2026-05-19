@@ -47,3 +47,9 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Sensitive environment variables and local databases
+.env
+.env.local
+*.db
+*.db-journal

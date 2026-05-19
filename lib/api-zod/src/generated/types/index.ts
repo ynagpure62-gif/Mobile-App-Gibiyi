@@ -7,7 +7,10 @@
  */
 
 export * from "./category";
+export * from "./createCustomLogo201";
 export * from "./createOrderInput";
+export * from "./customLogoRequestInput";
+export * from "./customLogoRequestInputSliders";
 export * from "./getProductsParams";
 export * from "./getProductsSort";
 export * from "./healthStatus";

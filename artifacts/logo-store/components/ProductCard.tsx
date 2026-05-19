@@ -14,7 +14,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import type { Product } from "@workspace/api-client-react";
+import { getBaseUrl, type Product } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
 import colors from "@/constants/colors";
 
@@ -62,6 +62,10 @@ export function ProductCard({
 
   const isLarge = size === "large";
 
+  const resolvedImageUrl = product.imageUrl.startsWith("http")
+    ? product.imageUrl
+    : `${getBaseUrl() || ""}${product.imageUrl}`;
+
   return (
     <Animated.View style={animStyle}>
       <Pressable
@@ -79,9 +83,9 @@ export function ProductCard({
       >
         <View style={[styles.imageContainer, { height: isLarge ? 180 : 140 }]}>
           <Image
-            source={{ uri: product.imageUrl }}
+            source={{ uri: resolvedImageUrl }}
             style={styles.image}
-            contentFit="cover"
+            contentFit="contain"
             transition={300}
           />
           {product.featured && (
@@ -116,7 +120,7 @@ export function ProductCard({
           </Text>
           <View style={styles.footer}>
             <Text style={[styles.price, { color: c.primary }]}>
-              ${price.toFixed(2)}
+              ₹{price.toFixed(2)}
             </Text>
             <Pressable
               style={[

@@ -215,3 +215,35 @@ export const AddToWishlistBody = zod.object({
 export const RemoveFromWishlistParams = zod.object({
   productId: zod.coerce.number(),
 });
+
+/**
+ * @summary Submit a custom logo design request
+ */
+export const CreateCustomLogoBody = zod.object({
+  businessName: zod.string(),
+  slogan: zod.string().optional(),
+  description: zod.string(),
+  industry: zod.string(),
+  targetAudience: zod.string(),
+  top3Things: zod.array(zod.string()),
+  ideas: zod.string().optional(),
+  colors: zod.string(),
+  styles: zod.array(zod.string()),
+  sliders: zod.object({
+    feminineMasculine: zod.number().optional(),
+    simpleComplex: zod.number().optional(),
+    grayColorful: zod.number().optional(),
+    subtleBright: zod.number().optional(),
+    quietLoud: zod.number().optional(),
+    necessityLuxury: zod.number().optional(),
+    expensiveEconomical: zod.number().optional(),
+    playfulSerious: zod.number().optional(),
+    modernClassic: zod.number().optional(),
+    rawRefined: zod.number().optional(),
+    exoticCommonplace: zod.number().optional(),
+    sportyElegant: zod.number().optional(),
+    adventureSecure: zod.number().optional(),
+  }),
+  paymentId: zod.string(),
+  uploadLinks: zod.array(zod.string()).optional(),
+});

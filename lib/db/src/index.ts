@@ -1,16 +1,19 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
-import * as schema from "./schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema/index.js";
+import dotenv from "dotenv";
+import path from "path";
 
-const { Pool } = pg;
+// Load .env from workspace root if not already loaded
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error("DATABASE_URL is not set in environment variables");
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle(pool, { schema });
+const client = postgres(connectionString || "");
+export const db = drizzle(client, { schema });
 
-export * from "./schema";
+export * from "./schema/index.js";

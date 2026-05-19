@@ -45,6 +45,8 @@ export interface Order {
   userId: string;
   status: string;
   totalAmount: number;
+  utr?: string;
+  screenshotUrl?: string | null;
   items: OrderItem[];
   createdAt: string;
 }
@@ -56,6 +58,8 @@ export interface OrderItemInput {
 
 export interface CreateOrderInput {
   items: OrderItemInput[];
+  utr?: string;
+  screenshotUrl?: string | null;
 }
 
 export interface WishlistItem {
@@ -66,6 +70,37 @@ export interface WishlistItem {
 
 export interface WishlistInput {
   productId: number;
+}
+
+export type CustomLogoRequestInputSliders = {
+  feminineMasculine?: number;
+  simpleComplex?: number;
+  grayColorful?: number;
+  subtleBright?: number;
+  quietLoud?: number;
+  necessityLuxury?: number;
+  expensiveEconomical?: number;
+  playfulSerious?: number;
+  modernClassic?: number;
+  rawRefined?: number;
+  exoticCommonplace?: number;
+  sportyElegant?: number;
+  adventureSecure?: number;
+};
+
+export interface CustomLogoRequestInput {
+  businessName: string;
+  slogan?: string;
+  description: string;
+  industry: string;
+  targetAudience: string;
+  top3Things: string[];
+  ideas?: string;
+  colors: string;
+  styles: string[];
+  sliders: CustomLogoRequestInputSliders;
+  paymentId: string;
+  uploadLinks?: string[];
 }
 
 export type GetProductsParams = {
@@ -86,3 +121,9 @@ export const GetProductsSort = {
   price_asc: "price_asc",
   price_desc: "price_desc",
 } as const;
+
+export type CreateCustomLogo201 = {
+  success?: boolean;
+  message?: string;
+  id?: string;
+};
